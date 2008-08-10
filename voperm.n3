@@ -1,0 +1,74 @@
+@prefix dc: <http://purl.org/dc/elements/1.1/>.
+@prefix foaf: <http://xmlns.com/foaf/0.1/>.
+@prefix wot: <http://xmlns.com/wot/0.1/>.
+@prefix rss: <http://purl.org/rss/1.0/>.
+@prefix x: <http://tommorris.org/foaf#>.
+@prefix rdfs: <http://www.w3.org/2000/01/rdf-schema#>.
+@prefix xsd: <http://www.w3.org/2001/XMLSchema-datatypes#>.
+@prefix owl: <http://www.w3.org/2002/07/owl#>.
+@prefix : <http://tommorris.org/vocab/voperm/> .
+
+:PermissibleThing a owl:Class;
+  rdfs:label "Permissible thing"@en;
+  rdfs:comment "A thing which permissions can be placed upon."@en.
+
+# here we define a list of classes that can have permissions set on them.
+foaf:PersonalProfileDocument rdfs:subClassOf :PermissibleThing .
+sioc:Post rdfs:subClassOf :PermissibleThing .
+foaf:Document rdfs:subClassOf :PermissibleThing .
+rss:channel a rdfs:subClassOf :PermissibleThing .
+rss:item a rdfs:subClassOf :PermissibleThing .
+  # by inference, in non-RDF contexts, things which match the semantics of
+  # RSS/Atom channel and item should be considered permissible things
+
+:hasPermissionProfile owl:ObjectProperty;
+  rdfs:label "has permission profile"@en;
+  rdfs:domain :PermissibleThing;
+  rdfs:range :PermissionProfile.
+
+:PermissionProfile a owl:Class;
+  rdfs:label "The profile showing what permissions are given for the resource."@en .
+
+# Feature 1: Polling Frequency
+#   User agents should know how often to poll a resource.
+:pollFrequency a owl:DatatypeProperty;
+  rdfs:label "Poll frequency"@en;
+  rdfs:comment "The minimum amount of time that a user agent should allow between polling the resource again."@en;
+  rdfs:domain :PermissionProfile;
+  rdfs:range xsd:duration .
+
+# TODO: property to describe requirements of use of if-modified-else and etags
+
+# Feature 2: Syndication restrictions
+#   User agents should know how to they are allowed to reuse a resource.
+:allowsRepublication a owl:DatatypeProperty;
+  rdfs:label "Allows republication"@en;
+  rdfs:comment "Republication means that one is allowed to take the resource and republish it as a new resource. This is designed in such a way as to allow users to opt-out from 'splogs', even though this will be of perhaps minimal effectiveness"@en;
+  rdfs:domain :PermissionProfile;
+  rdfs:range xsd:boolean .
+
+# TODO: build a private/public distinction
+
+# Feature 3: Transmission of user information to commercial partners
+# and sponsors
+#   User agents should know whether or not content is to be reusable for 
+#   sponsorship, advertising and other commercial repurposing.
+:allowsCommercialSharing a owl:DatatypeProperty;
+  rdfs:label "Allows commercial sharing"@en;
+  rdfs:comment "If I were to publish some material on one site, I do not necessarily want it to be used for commercial purposes on other sites."@en;
+  rdfs:domain :PermissionProfile;
+  rdfs:range xsd:boolean.
+
+:banned a owl:ObjectProperty;
+  rdfs:label "Banned"@en;
+  rdfs:comment "An agent or organization that has been banned from getting access to materials under this policy. This can be used for inference, such that a company could look at this property and see if it matches with their competitors to see whether or not permission to use the resource would likely be given."@en;
+  rdfs:domain :PermissionProfile;
+  rdfs:range foaf:Organization, foaf:Agent, foaf:Person.
+
+:permitted a owl:ObjectProperty;
+  rdfs:label "Permitted"@en;
+  rdfs:comment "An agent or organization that has been explicitly permitted access to materials under this policy"@en;
+  rdfs:domain :PermissionProfile;
+  rdfs:range foaf:Organization, foaf:Agent, foaf:Person.
+  
+# author's note about banned/permitted:  http://tommorris.lighthouseapp.com/projects/15368-voperm/tickets/1-unsure-about-banned-permitted
